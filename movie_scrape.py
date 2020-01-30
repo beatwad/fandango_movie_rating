@@ -18,8 +18,8 @@ mt_ratings = list()
 votes = list()
 
 # Year and page lists for scrapind
-url_years = [str(i) for i in range(2000, 2020)]
-pages = [str(i) for i in range(1, 6)]
+url_years = [str(i) for i in range(2015, 2020)]
+pages = [str(i) for i in range(1, 21)]
 
 # Get start time
 start_time = time()
