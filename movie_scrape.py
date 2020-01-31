@@ -6,6 +6,7 @@ from requests import get
 from bs4 import BeautifulSoup
 import pandas as pd
 import re
+from numpy import nan
 from time import sleep
 from time import time
 from random import randint
@@ -19,7 +20,7 @@ votes = list()
 
 # Year and page lists for scrapind
 url_years = [str(i) for i in range(2015, 2020)]
-pages = [str(i) for i in range(1, 21)]
+pages = [i for i in range(50)]
 
 # Get start time
 start_time = time()
@@ -30,11 +31,17 @@ requests = 1
 for year in url_years:
     for page in pages:
         # Get data from URL
-        url = f'http://www.imdb.com/search/title?release_date={year}&sort=num_votes,desc&page={page}'
-        response = get(url)
+        url = f'http://www.imdb.com/search/title?release_date={year}&sort=num_votes,desc&start={str(page*50+1)}'
 
         # Pause the loop for time from 8 to 17 seconds to avoid IMDB's block
         sleep(randint(5, 10))
+
+        try:
+            response = get(url)
+        except Exception as e:  # if caught an exception - continue to next loop iteration
+            print(e)
+            sleep(randint(5, 10))
+            continue
 
         # Monitor the requests
         elapsed_time = time() - start_time
@@ -61,16 +68,16 @@ for year in url_years:
                 films.append(film)
                 # Year
                 year = container.h3.find('span', class_='lister-item-year text-muted unbold').text
-                year = int(re.sub('[^\d]', '', year))
+                year = re.sub('[^\d]', '', year)
                 years.append(year)
                 # IMDB rating
-                imdb_rating = float(container.find('div', class_="inline-block ratings-imdb-rating").strong.text)
+                imdb_rating = container.find('div', class_="inline-block ratings-imdb-rating").strong.text
                 imdb_ratings.append(imdb_rating)
                 # Metascore
-                mt_rating = int(container.find('span', class_="metascore favorable").text)
+                mt_rating = container.find('span', class_="metascore favorable").text
                 mt_ratings.append(mt_rating)
                 # number of votes
-                vote = int(container.find('span', attrs={'name': 'nv'})['data-value'])
+                vote = container.find('span', attrs={'name': 'nv'})['data-value']
                 votes.append(vote)
 
 
